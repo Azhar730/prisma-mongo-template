@@ -73,8 +73,66 @@ class QueryBuilder {
   //   return this;
   // }
 
-  filter(enumFields: string[] = [], booleanFields: string[] = []) {
+  // filter(enumFields: string[] = []) {
+  //   const queryObj = { ...this.query };
+  //   const excludeFields = [
+  //     "searchTerm",
+  //     "sort",
+  //     "limit",
+  //     "page",
+  //     "fields",
+  //     "populate",
+  //     "dateRange",
+  //   ];
+  //   excludeFields.forEach((field) => delete queryObj[field]);
+
+  //   const formattedFilters: Record<string, any> = {};
+
+  //   for (const [key, value] of Object.entries(queryObj)) {
+  //     const nestedKeys = key.split(".");
+  //     let currentLevel = formattedFilters;
+
+  //     for (let i = 0; i < nestedKeys.length; i++) {
+  //       const field = nestedKeys[i] as string;
+
+  //       if (i === nestedKeys.length - 1) {
+  //         // 👇 Check for special "null" or "notnull"
+  //         if (value === "null") {
+  //           currentLevel[field] = null; // { equals: null };
+  //         } else if (value === "notnull") {
+  //           currentLevel[field] = { not: null };
+  //         }
+  //         // 👇 Enum field
+  //         else if (enumFields.includes(key)) {
+  //           currentLevel[field] = { equals: value };
+  //         }
+  //         // 👇 Regular string search
+  //         else {
+  //           currentLevel[field] = {
+  //             contains: value,
+  //             mode: "insensitive",
+  //           };
+  //         }
+  //       } else {
+  //         currentLevel[field] = currentLevel[field] || {};
+  //         currentLevel = currentLevel[field];
+  //       }
+  //     }
+  //   }
+
+  //   this.prismaQuery.where = {
+  //     ...this.prismaQuery.where,
+  //     ...formattedFilters,
+  //   };
+
+  //   return this;
+  // }
+
+
+
+  filter(exactFields: string[] = []) {
     const queryObj = { ...this.query };
+
     const excludeFields = [
       "searchTerm",
       "sort",
@@ -88,39 +146,15 @@ class QueryBuilder {
 
     const formattedFilters: Record<string, any> = {};
 
-    for (const [key, value] of Object.entries(queryObj)) {
-      const nestedKeys = key.split(".");
-      let currentLevel = formattedFilters;
-
-      for (let i = 0; i < nestedKeys.length; i++) {
-        const field = nestedKeys[i] as string;
-
-        if (i === nestedKeys.length - 1) {
-          // 👇 Check for special "null" or "notnull"
-          if (value === "null") {
-            currentLevel[field] = null; // { equals: null };
-          } else if (value === "notnull") {
-            currentLevel[field] = { not: null };
-          }
-          // 👇 Enum field
-          else if (enumFields.includes(key)) {
-            currentLevel[field] = { equals: value };
-          }
-          // 👇 Boolean field
-          else if (booleanFields.includes(key)) {
-            currentLevel[field] = { equals: value === "true" };
-          }
-          // 👇 Regular string search
-          else {
-            currentLevel[field] = {
-              contains: value,
-              mode: "insensitive",
-            };
-          }
-        } else {
-          currentLevel[field] = currentLevel[field] || {};
-          currentLevel = currentLevel[field];
-        }
+    for (const [field, value] of Object.entries(queryObj)) {
+      if (value === "null") {
+        formattedFilters[field] = null;
+      } else if (value === "notnull") {
+        formattedFilters[field] = { not: null };
+      } else if (exactFields.includes(field)) {
+        formattedFilters[field] = { equals: value };
+      } else {
+        formattedFilters[field] = { contains: value, mode: "insensitive" };
       }
     }
 
@@ -131,6 +165,9 @@ class QueryBuilder {
 
     return this;
   }
+
+
+
 
   rawFilter(filters: Record<string, any>) {
     // Ensure that the filters are merged correctly with the existing where conditions
@@ -253,7 +290,6 @@ class QueryBuilder {
   }
 
   async execute() {
-    console.log("Final Prisma Query:", JSON.stringify(this.prismaQuery)); // 👈 Add this line
     return this.model.findMany(this.prismaQuery);
   }
 

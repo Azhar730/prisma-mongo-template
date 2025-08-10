@@ -1,7 +1,7 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import httpStatus from "http-status";
-// import router from "./app/routes";
+import router from "./app/routes";
 import cookieParser from "cookie-parser";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 
@@ -15,7 +15,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello from PH Health Care");
 });
 
-// app.use("/api/v1");
+app.use(router);
 app.use(globalErrorHandler);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
