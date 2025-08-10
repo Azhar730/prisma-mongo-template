@@ -10,11 +10,13 @@ datasource db {
 model User {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
   firstName    String
-  lastName     String
+  lastName     String?
   email        String         @unique
   password     String
   role         UserRole       @default(USER)
   status       UserStatus     @default(ACTIVE)
+  photoUrl     String?
+  phoneNumber  String?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   applyVacancy ApplyVacancy[]
@@ -23,14 +25,27 @@ model User {
 }
 
 model Vacancy {
-  id          String            @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  location    String
-  department  VacancyDepartment
-  type        VacancyType
-  description String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  locationCity String
+  locationCountry String
+  category    Category
+  jobType     JobType
+  jobLocation String
+  hoursPerWeek Int
+  contractType ContractType
+  salary       String?
+  startDate    String?
+  endDate      String?
+  companyName  String
+  companyLogo  String
+  description  String
+  responsibilities String[]
+  offers      String[]
+  latitude    Float
+  longitude   Float
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
   applyVacancy ApplyVacancy?
 
   @@map("vacancies")
@@ -77,12 +92,21 @@ enum UserRole {
   ADMIN
 }
 
-enum VacancyType {
+enum JobType {
   FULL_TIME
   PART_TIME
+  CONTRACT
+  TEMPORARY
+  INTERNSHIP
 }
 
-enum VacancyDepartment {
+enum ContractType {
+  PERMANENT
+  TEMPORARY
+  FREELANCE
+  OTHER
+}
+enum Category {
   GOVERNMENT_AND_PUBLIC_SECTOR
   LOGISTICS_AND_SUPPLY_CHAIN
   ENGINEERING

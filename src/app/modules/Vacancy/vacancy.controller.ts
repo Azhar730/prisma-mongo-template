@@ -13,7 +13,7 @@ const createVacancy = catchAsync(async (req, res) => {
     });
 })
 const getAllVacancy = catchAsync(async (req, res) => {
-    const result = await VacancyServices.getAllVacancyFromDB();
+    const result = await VacancyServices.getAllVacancyFromDB(req.query);
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
         success: true,
@@ -22,7 +22,18 @@ const getAllVacancy = catchAsync(async (req, res) => {
     });
 })
 
+const getLatest3Vacancies = catchAsync(async (req, res) => {
+    const result = await VacancyServices.getLatest3VacanciesFromDB();
+    sendResponse(res, {
+        statusCode: httpStatus.CREATED,
+        success: true,
+        message: `Latest 3 vacancies retrieved successfully`,
+        data: result,
+    });
+})
+
 export const VacancyControllers = {
     createVacancy,
     getAllVacancy,
+    getLatest3Vacancies,
 }

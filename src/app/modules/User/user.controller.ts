@@ -1,10 +1,12 @@
+import { IFile } from "../../../interfaces/file";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { UserServices } from "./user.service";
 import httpStatus from "http-status";
 
 const registerUser = catchAsync(async (req, res) => {
-    const result = await UserServices.registerUserIntoDB(req.body);
+    const file = req.file as IFile;
+    const result = await UserServices.registerUserIntoDB(req.body, file);
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
         success: true,

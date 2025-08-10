@@ -5,13 +5,20 @@ import httpStatus from "http-status";
 import { IGenericResponse } from "../../../interfaces/common";
 import QueryBuilder from "../../../helpers/queryBuilder";
 import bcrypt from "bcrypt";
+import { IFile } from "../../../interfaces/file";
+import { fileUploader } from "../../../helpers/fileUploader";
 
-const registerUserIntoDB = async (payload: User) => {
+const registerUserIntoDB = async (payload: User, file: IFile) => {
+    if (file) {
+        const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+        payload.photoUrl = uploadToCloudinary?.secure_url ?? null;
+    }
     const user = await prisma.user.findUnique({
         where: {
             email: payload.email,
         },
     })
+    
     if (user) {
         throw new ApiError(httpStatus.CONFLICT, "User already exists");
     }
@@ -25,9 +32,10 @@ const registerUserIntoDB = async (payload: User) => {
 const createAdminIntoDB = async (payload: User) => {
     const user = await prisma.user.findUnique({
         where: {
-            email: payload.email,
+            email: payload?.email,
         },
     })
+    console.log("user", user);
     if (user) {
         throw new ApiError(httpStatus.CONFLICT, "User already exists");
     }

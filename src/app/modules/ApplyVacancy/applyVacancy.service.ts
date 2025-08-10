@@ -36,7 +36,7 @@ const applyVacancy = async (payload: ApplyVacancy, user: JwtPayload) => {
     
     payload.userId = userData.id;
     payload.firstName = userData.firstName;
-    payload.lastName = userData.lastName;
+    payload.lastName = userData.lastName ?? "";
     payload.emailAddress = userData.email;
     const result = await prisma.applyVacancy.create({
         data: {
