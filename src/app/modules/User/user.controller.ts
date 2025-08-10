@@ -15,7 +15,7 @@ const registerUser = catchAsync(async (req, res) => {
     });
 })
 const createAdmin = catchAsync(async (req, res) => {
-    const result = await UserServices.createAdminIntoDB(req.body);
+    const result = await UserServices.createAdminIntoDB(req.body, req.file as IFile);
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
         success: true,

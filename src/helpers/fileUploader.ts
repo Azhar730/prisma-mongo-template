@@ -28,17 +28,50 @@ const uploadToCloudinary = async (
     return new Promise((resolve, reject) => {
         cloudinary.uploader.upload(
             file.path,
-            (error: Error, result: ICloudinaryResponse) => {
+            (error: any, result: any) => {
                 fs.unlinkSync(file.path);
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(result);
+                    resolve(result as ICloudinaryResponse);
                 }
             }
         );
     });
 };
+
+
+
+const pdfFileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    if (file.mimetype === "application/pdf") {
+        cb(null, true);
+    } else {
+        cb(new Error("Only PDF files are allowed!"));
+    }
+};
+
+const uploadPdf = multer({ storage: storage, fileFilter: pdfFileFilter });
+
+const uploadPdfToCloudinary = async (
+    file: IFile
+): Promise<ICloudinaryResponse | undefined> => {
+    return new Promise((resolve, reject) => {
+        cloudinary.uploader.upload(
+            file.path,
+            { resource_type: "raw" },  // important for PDFs and other non-image files
+            (error: any, result: any) => {
+                fs.unlinkSync(file.path);
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result as ICloudinaryResponse);
+                }
+            }
+        );
+    });
+};
+
+
 
 export const fileUploader = {
     upload,

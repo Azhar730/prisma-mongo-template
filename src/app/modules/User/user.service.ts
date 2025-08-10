@@ -9,10 +9,7 @@ import { IFile } from "../../../interfaces/file";
 import { fileUploader } from "../../../helpers/fileUploader";
 
 const registerUserIntoDB = async (payload: User, file: IFile) => {
-    if (file) {
-        const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-        payload.photoUrl = uploadToCloudinary?.secure_url ?? null;
-    }
+    console.log("payload", payload);
     const user = await prisma.user.findUnique({
         where: {
             email: payload.email,
@@ -22,6 +19,10 @@ const registerUserIntoDB = async (payload: User, file: IFile) => {
     if (user) {
         throw new ApiError(httpStatus.CONFLICT, "User already exists");
     }
+    if (file) {
+        const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+        payload.photoUrl = uploadToCloudinary?.secure_url ?? null;
+    }
     const hashedPassword: string = await bcrypt.hash(payload.password, 12);
     payload.password = hashedPassword;
     const result = await prisma.user.create({
@@ -29,17 +30,22 @@ const registerUserIntoDB = async (payload: User, file: IFile) => {
     });
     return result;
 }
-const createAdminIntoDB = async (payload: User) => {
+const createAdminIntoDB = async (payload: User,file: IFile) => {
     const user = await prisma.user.findUnique({
         where: {
             email: payload?.email,
         },
     })
-    console.log("user", user);
     if (user) {
         throw new ApiError(httpStatus.CONFLICT, "User already exists");
     }
+    if (file) {
+        const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+        payload.photoUrl = uploadToCloudinary?.secure_url ?? null;
+    }
     payload.role = "ADMIN";
+    const hashedPassword: string = await bcrypt.hash(payload.password, 12);
+    payload.password = hashedPassword;
     const result = await prisma.user.create({
         data: payload,
     });

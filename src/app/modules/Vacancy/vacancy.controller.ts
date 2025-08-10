@@ -1,10 +1,12 @@
+import { JwtPayload } from "jsonwebtoken";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { VacancyServices } from "./vacancy.service";
 import httpStatus from "http-status";
 
 const createVacancy = catchAsync(async (req, res) => {
-    const result = await VacancyServices.createVacancyIntoDB(req.body);
+    const user = req.user;
+    const result = await VacancyServices.createVacancyIntoDB(req.body,user as JwtPayload);
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
         success: true,
