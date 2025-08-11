@@ -1,9 +1,11 @@
 import { ApplyVacancy, UserStatus } from "@prisma/client";
-import { Jwt, JwtPayload } from "jsonwebtoken";
+import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiError";
+import { IFile } from "../../../interfaces/file";
+import { fileUploader } from "../../../helpers/fileUploader";
 
-const applyVacancy = async (payload: ApplyVacancy, user: JwtPayload) => {
+const applyVacancy = async (payload: ApplyVacancy, user: JwtPayload, file: IFile) => {
     // check user exists
     const userData = await prisma.user.findUnique({
         where: {
@@ -33,21 +35,25 @@ const applyVacancy = async (payload: ApplyVacancy, user: JwtPayload) => {
     if (existingApplication) {
         throw new ApiError(409, "You have already applied for this vacancy.");
     }
-    
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    payload.cvLink = uploadToCloudinary?.secure_url ?? ""
     payload.userId = userData.id;
     payload.firstName = userData.firstName;
-    payload.lastName = userData.lastName ?? "";
+    payload.lastName = userData.lastName
     payload.emailAddress = userData.email;
     const result = await prisma.applyVacancy.create({
         data: {
             ...payload,
         },
     })
+    console.log("result", result);
     return result;
 
 }
 
-const getMyVacancies = async(user: JwtPayload) => {
+
+
+const getMyVacancies = async (user: JwtPayload) => {
     const userData = await prisma.user.findUnique({
         where: {
             id: user.id,

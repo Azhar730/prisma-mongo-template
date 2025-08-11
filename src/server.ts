@@ -6,7 +6,7 @@ const port = config.port
 
 async function main() {
   const server: Server = app.listen(port, () => {
-    console.log("PH Health Care is listening on port", port);
+    console.log("Remywit is listening on port", port);
   });
 }
 main()

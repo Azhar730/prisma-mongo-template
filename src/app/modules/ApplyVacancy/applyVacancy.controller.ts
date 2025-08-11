@@ -1,14 +1,16 @@
+import { IFile } from "../../../interfaces/file";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { ApplyVacancyServices } from "./applyVacancy.service";
 import httpStatus from "http-status";
 
 const applyVacancy = catchAsync(async (req, res) => {
+    const file = req.file as IFile;
     const user = req.user;
     if (!user || typeof user !== "object") {
         throw new Error("User information is missing or invalid.");
     }
-    const result = await ApplyVacancyServices.applyVacancy(req.body, user);
+    const result = await ApplyVacancyServices.applyVacancy(req.body, user,file);
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
         success: true,

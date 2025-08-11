@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from PH Health Care");
+  res.send("Hello from Remywit!");
 });
 
 app.use(router);

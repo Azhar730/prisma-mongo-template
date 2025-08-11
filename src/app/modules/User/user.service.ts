@@ -9,7 +9,6 @@ import { IFile } from "../../../interfaces/file";
 import { fileUploader } from "../../../helpers/fileUploader";
 
 const registerUserIntoDB = async (payload: User, file: IFile) => {
-    console.log("payload", payload);
     const user = await prisma.user.findUnique({
         where: {
             email: payload.email,

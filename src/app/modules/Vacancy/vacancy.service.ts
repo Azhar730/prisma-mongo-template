@@ -43,6 +43,9 @@ const getAllVacancyFromDB = async (query: Record<string,any>): Promise<IGenericR
         .fields()
         .execute();
     const meta = await queryBuilder.countTotal();
+    if (!vacancies || vacancies.length === 0) {
+        throw new ApiError(404, "No vacancies found");
+    }
     return { meta, data: vacancies }
 }
 
