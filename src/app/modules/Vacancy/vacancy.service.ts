@@ -4,23 +4,33 @@ import QueryBuilder from "../../../helpers/queryBuilder";
 import { IGenericResponse } from "../../../interfaces/common";
 import ApiError from "../../../errors/ApiError";
 import { JwtPayload } from "jsonwebtoken";
+import { IFile } from "../../../interfaces/file";
+import { fileUploader } from "../../../helpers/fileUploader";
 
-const createVacancyIntoDB = async (payload: Vacancy,user: JwtPayload) => {
-    // check if user exists
+const createVacancyIntoDB = async (payload: Vacancy, user: JwtPayload, companyLogoFile: IFile | null, vacancyImgFile: IFile | null) => {
     const userExist = await prisma.user.findUnique({
-        where: {
-            id: user.id,
-        },
-    })
+        where: { id: user.id },
+    });
     if (!userExist) {
         throw new ApiError(404,"User not found");
     }
+
+    if (companyLogoFile) {
+        const uploadLogo = await fileUploader.uploadToCloudinary(companyLogoFile);
+        payload.companyLogo = uploadLogo?.secure_url ?? "";
+    }
+    if (vacancyImgFile) {
+        const uploadVacancyImg = await fileUploader.uploadToCloudinary(vacancyImgFile);
+        payload.vacancyImg = uploadVacancyImg?.secure_url ?? "";
+    }
+
     payload.userId = user.id;
+
     const result = await prisma.vacancy.create({
         data: payload,
-    })
+    });
     return result;
-}
+};
 
 const getAllVacancyFromDB = async (query: Record<string,any>): Promise<IGenericResponse<Vacancy[]>> => {
     const queryBuilder = new QueryBuilder(prisma.vacancy, query);

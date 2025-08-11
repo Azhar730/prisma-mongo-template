@@ -15,7 +15,7 @@ const registerUserIntoDB = async (payload: User, file: IFile) => {
             email: payload.email,
         },
     })
-    
+
     if (user) {
         throw new ApiError(httpStatus.CONFLICT, "User already exists");
     }
